@@ -30,11 +30,38 @@ return array(
                 ),
 
             ),
+            'post' => array(
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => array(
+                    'route'    => '/post',
+                    'defaults' => array(
+                        'controller' => 'Admin\Controller\Post',
+                        'action'     => 'index',
+                    ),
+                ),
+                'may_terminate' => true,
+                'child_routes' => array(
+                    'default' => array(
+                        'type'    => 'Segment',
+                        'options' => array(
+                            'route'    => '[/:action[/:id]]',
+                            'constraints' => array(
+                                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                'id'         => '\d+'
+                            ),
+                            'defaults' => array(
+                            ),
+                        ),
+                    ),
+                ),
+
+            ),
         ),
     ),
     'controllers' => array(
         'invokables' => array(
-            'Admin\Controller\Index' => 'Admin\Controller\IndexController'
+            'Admin\Controller\Index' => 'Admin\Controller\IndexController',
+            'Admin\Controller\Post'  => 'Admin\Controller\PostController'
         ),
     ),
     'view_manager' => array(

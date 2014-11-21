@@ -28,6 +28,26 @@ abstract class AbstractController extends AbstractActionController
         $paginator->setCurrentPageNumber($page)
                   ->setDefaultItemCountPerPage(10);
 
+        if ($this->flashMessenger()->hasSuccessMessages()) {
+            return new ViewModel(
+                array(
+                    'data' => $paginator, 
+                    'page' => $page,
+                    'success' => $this->flashMessenger()->getSuccessMessages()
+                )
+            );
+        }
+
+        if ($this->flashMessenger()->hasErrorMessages()) {
+            return new ViewModel(
+                array(
+                    'data' => $paginator, 
+                    'page' => $page,
+                    'error' => $this->flashMessenger()->getErrorMessages()
+                )
+            );
+        }
+
         return new ViewModel(array('data' => $paginator, 'page' => $page));
     }
 
@@ -42,7 +62,6 @@ abstract class AbstractController extends AbstractActionController
 
         if ($request->isPost()) {
 
-            $a = $request->getPost();
             $form->setData($request->getPost());
 
             if ($form->isValid()) {
@@ -55,7 +74,11 @@ abstract class AbstractController extends AbstractActionController
                     $this->flashMessenger()->addErrorMessage('Não foi possivel cadastrar.');
                 }
 
-                return $this->redirect()->toRoute($this->route, array('controller' => $this->controller));
+                return $this->redirect()
+                            ->toRoute($this->route, array(
+                                'controller' => $this->controller,
+                                'action' => 'inserir'
+                            ));
             }
         }
 
@@ -92,6 +115,18 @@ abstract class AbstractController extends AbstractActionController
 
         if ($repository) {
 
+            $array = array();
+            foreach ($repository->toArray() as $key => $value) {
+                if ($value instanceof \DateTime) {
+                    $array[$key] = $value->format('d/m/Y');
+                } else {
+                    $array[$key] = $value;
+                }
+            }
+
+            $form->setData($array);
+
+
             if ($request->isPost()) {
 
                 $form->setData($request->getPost());
@@ -99,11 +134,21 @@ abstract class AbstractController extends AbstractActionController
                 if ($form->isValid()) {
                     $service = $this->getServiceLocator()->get($this->service);
 
-                    if ($service->save($request->getPost()->toArray())) {
+                    $data = $request->getPost()->toArray();
+                    $data['id'] = (int) $param;
+
+                    if ($service->save($data)) {
                         $this->flashMessenger()->addSuccessMessage('Editado com sucesso.');
                     } else {
                         $this->flashMessenger()->addErrorMessage('Não foi possivel editar.');
                     }
+
+                    return $this->redirect()
+                                ->toRoute($this->route, array(
+                                    'controller' => $this->controller,
+                                    'action'    => 'editar',
+                                    'id'        => $param
+                                ));
                 }
             }
 
@@ -138,7 +183,7 @@ abstract class AbstractController extends AbstractActionController
 
         $this->flashMessenger()->clearMessages();
 
-        return ViewModel(array('form' => $form, 'id' => $param));
+        return new ViewModel(array('form' => $form, 'id' => $param));
     }
 
     public function excluirAction()

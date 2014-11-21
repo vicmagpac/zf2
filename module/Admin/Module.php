@@ -48,4 +48,15 @@ class Module
             )
         );
     }
+
+    public function getServicePostConfig()
+    {
+        return array(
+            'factories' => array(
+                'Admin\Service\PostService' => function ($em) {
+                    return new PostService($em->get('Doctrine\ORM\EntityManager'));
+                }
+            )
+        );
+    }
 }
