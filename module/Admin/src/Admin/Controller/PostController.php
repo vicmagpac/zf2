@@ -14,4 +14,10 @@ class PostController extends AbstractController
 		$this->service = 'Admin\Service\PostService';
 		$this->entity = 'Admin\Entity\Post';
 	}
+
+    public function inserirAction()
+    {
+        $this->form = $this->getServiceLocator()->get($this->form);
+        return parent::inserirAction();
+    }
 }

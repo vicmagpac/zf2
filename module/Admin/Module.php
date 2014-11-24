@@ -9,7 +9,10 @@
 
 namespace Admin;
 
+use Admin\Form\PostForm;
 use Admin\Service\CategoriaService;
+use Admin\Service\PostService;
+
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 
@@ -44,17 +47,12 @@ class Module
             'factories' => array(
                 'Admin\Service\CategoriaService' => function ($em) {
                     return new CategoriaService($em->get('Doctrine\ORM\EntityManager'));
-                }
-            )
-        );
-    }
-
-    public function getServicePostConfig()
-    {
-        return array(
-            'factories' => array(
+                },
                 'Admin\Service\PostService' => function ($em) {
                     return new PostService($em->get('Doctrine\ORM\EntityManager'));
+                },
+                'Admin\Form\PostForm' => function ($em) {
+                    return new PostForm($em->get('Doctrine\ORM\EntityManager'));
                 }
             )
         );

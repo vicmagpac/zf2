@@ -12,4 +12,11 @@ class PostService extends AbstractService
 		$this->entity = 'Admin\Entity\Post';
 		parent::__construct($em);
 	}
+
+    public function save(Array $data = array())
+    {
+        $data['categoria'] = $this->em->getRepository('Admin\Entity\Categoria')->find($data['categoria']);
+
+        return parent::save($data);
+    }
 }
